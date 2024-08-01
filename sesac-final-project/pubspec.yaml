@@ -1,0 +1,25 @@
+name: sesac_final_project
+description: A new Flutter project.
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^0.13.6
+
+  fluttertoast: ^8.0.9 # 버전은 최신으로 맞춰주세요
+  shared_preferences: ^2.0.15  # 최신 버전으로 업데이트할 수 있음
+  flutter_dotenv: ^5.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    - assets/images/logo.png
+
