@@ -1,34 +1,32 @@
-const openaiService = require('../services/openai_service');
+const { Configuration, OpenAIApi } = require('openai');
+const csvService = require('./csv_service');
 
-exports.askQuestion = async (req, res) => {
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
+
+exports.loadQuestions = async () => {
   try {
-    const { question } = req.body;
-    const answer = await openaiService.getAnswer(question);
-    res.json({ answer });
+    const questions = await csvService.readQuestionsFromCSV();
+    console.log(`Loaded ${questions.length} questions from CSV`);
+    return questions;
   } catch (error) {
-    console.error('Error in askQuestion:', error);
-    res.status(500).json({ error: 'An error occurred while processing your request.' });
+    console.error('Error loading questions:', error);
+    throw new Error('Failed to load questions from CSV');
   }
 };
 
-exports.setEconomicGoal = async (req, res) => {
+exports.getAnswer = async (question) => {
   try {
-    const { goal } = req.body;
-    // Here you would typically save the goal to a database
-    res.json({ message: 'Goal set successfully', goal });
+    const response = await openai.createCompletion({
+      model: "text-davinci-002",
+      prompt: question,
+      max_tokens: 150,
+    });
+    return response.data.choices[0].text.trim();
   } catch (error) {
-    console.error('Error in setEconomicGoal:', error);
-    res.status(500).json({ error: 'An error occurred while setting the goal.' });
-  }
-};
-
-exports.getEconomicGoals = async (req, res) => {
-  try {
-    // Here you would typically fetch goals from a database
-    const goals = [{ id: 1, description: 'Save $100 this month' }];
-    res.json(goals);
-  } catch (error) {
-    console.error('Error in getEconomicGoals:', error);
-    res.status(500).json({ error: 'An error occurred while fetching goals.' });
+    console.error('Error in OpenAI API call:', error);
+    throw new Error('Failed to get answer from OpenAI');
   }
 };
